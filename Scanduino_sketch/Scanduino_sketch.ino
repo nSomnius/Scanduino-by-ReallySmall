@@ -117,8 +117,7 @@ void setup()
 
 void loop(){
 
-  if (buttonState == HIGH){ //this section configures settings using a simple lcd menu system
-    //manual control and menu section goes here
+  if (buttonState == HIGH){ //this section provides manual control and configures settings using a simple lcd menu system
 
     manualControlButtonChange();//check current toggle status of the manual control button
 
@@ -130,29 +129,37 @@ void loop(){
 
     else{
 
+      static uint8_t counter = 0; //this variable will be changed by encoder input
+      int8_t tmpdata;
+      tmpdata = read_encoder();
+      if( tmpdata ) {
+        counter += tmpdata;
+      }
+      counter = counter / 4;
+
       if (rbbuttonState == HIGH) { //use encoder to scroll through menu of settings
 
-        rotaryCounter = constrain(rotaryCounter, 0, 19); //limits choice to specified range
+        rotaryCounter = constrain(rotaryCounter, 0, 7); //limits choice to specified range
 
-        rotaryCounter += read_encoder (); //use encoder reading function to get rotaryCounter value
+        rotaryCounter = counter; //use encoder reading function to get rotaryCounter value
 
-        if (rotaryCounter == 19){ //when counter value exceeds number of menu items
+        if (rotaryCounter == 7){ //when counter value exceeds number of menu items
           rotaryCounter = 1; //reset it to 1 again to create a looping navigation
         }
 
         if (rotaryCounter == 0){ //when counter value goes below minimum number of menu items
-          rotaryCounter = 18; //reset it to 7 again to create a looping navigation
+          rotaryCounter = 6; //reset it to 6 again to create a looping navigation
         }     
 
       } 
 
       switch (rotaryCounter) {
 
-      case 1 ... 3: //this menu screen changes the number of rows to scan
+      case 1: //this menu screen changes the number of rows to scan
 
         if (rbbuttonState == LOW) { //press rotary encoder button within this menu item to edit variable
           numberOfImagesY = constrain(numberOfImagesY, 1, 25); //limits choice of input step size to specified range
-          numberOfImagesY += read_encoder ();  //use encoder reading function to set value of steps variable
+          numberOfImagesY = counter;  //use encoder reading function to set value of steps variable
         }
 
         lcd.setCursor(0, 0);
@@ -173,11 +180,11 @@ void loop(){
 
 
 
-      case 4 ... 6: //this menu screen changes the height of rows  
+      case 2: //this menu screen changes the height of rows  
 
         if (rbbuttonState == LOW) { //press rotary encoder button within this menu item to edit variable
           distanceY = constrain(distanceY, 1, 9990); //limits choice of input step size to specified range
-          distanceY += (read_encoder () * 10); //use encoder reading function to set value of steps variable
+          distanceY = counter * 10; //use encoder reading function to set value of steps variable
         }
 
         lcd.setCursor(0, 0);
@@ -200,11 +207,11 @@ void loop(){
 
         break;
 
-      case 7 ... 9: //this menu screen changes the number of columns to scan per row
+      case 3: //this menu screen changes the number of columns to scan per row
 
         if (rbbuttonState == LOW) { //press rotary encoder button within this menu item to edit variable
           numberOfImagesX = constrain(numberOfImagesX, 1, 25); //limits choice of input step size to specified range
-          numberOfImagesX += read_encoder ();  //use encoder reading function to set value of steps variable
+          numberOfImagesX = counter;  //use encoder reading function to set value of steps variable
         }
 
         lcd.setCursor(0, 0);
@@ -224,11 +231,11 @@ void loop(){
 
         break;
 
-      case 10 ... 12: //this menu screen changes the width of columns
+      case 4: //this menu screen changes the width of columns
 
         if (rbbuttonState == LOW) { //press rotary encoder button within this menu item to edit variable
           distanceX = constrain(distanceX, 1, 9990); //limits choice of input step size to specified range
-          distanceX += (read_encoder () * 10); //use encoder reading function to set value of steps variable
+          distanceX = counter * 10; //use encoder reading function to set value of steps variable
         }
 
         lcd.setCursor(0, 0);
@@ -251,11 +258,11 @@ void loop(){
 
         break;
 
-      case 13 ... 15: //this menu screen changes the start position on the X axis
+      case 5: //this menu screen changes the start position on the X axis
 
         if (rbbuttonState == LOW) { //press rotary encoder button within this menu item to edit variable
           startPosX = constrain(startPosX, 1, 9990); //limits choice of input step size to specified range
-          startPosX += (read_encoder () * 10); //use encoder reading function to set value of steps variable
+          startPosX = counter * 10; //use encoder reading function to set value of steps variable
         }
 
         lcd.setCursor(0, 0);
@@ -278,11 +285,11 @@ void loop(){
 
         break;
 
-      case 16 ... 18: //this menu screen changes the start position on the Y axis 
+      case 6: //this menu screen changes the start position on the Y axis 
 
         if (rbbuttonState == LOW) { //press rotary encoder button within this menu item to edit variable
           startPosY = constrain(startPosY, 1, 9990); //limits choice of input step size to specified range
-          startPosY += (read_encoder () * 10); //use encoder reading function to set value of steps variable
+          startPosY = counter * 10; //use encoder reading function to set value of steps variable
         }
 
         lcd.setCursor(0, 0);
@@ -641,6 +648,7 @@ void manualControl(){
     retreatY();
   }
 }
+
 
 
 

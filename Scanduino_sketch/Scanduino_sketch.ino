@@ -26,6 +26,8 @@ int manualSpeedY = 0; //delay between steps in manual mode on Y axis, governing 
 int joyStickreadingX = 0; //current analogue reading of X axis on joystick
 int joyStickreadingY = 0; //current analogue reading of Y axis on joystick
 int rotaryCounter = 1; //which menu item to display when turning rotary encoder
+int counter = 1; //this variable will be changed by encoder input
+int encoderMultiplier = 4; //adjust this to tailor responsiveness of rotary encoder
 
 //rotary encoder pins
 #define ENC_A A0
@@ -129,13 +131,8 @@ void loop(){
 
     else{
 
-      static uint8_t counter = 0; //this variable will be changed by encoder input
-      int8_t tmpdata;
-      tmpdata = read_encoder();
-      if( tmpdata ) {
-        counter += tmpdata;
-      }
-      counter = counter / 4;
+      counter += read_encoder(); //assign current rotary encoder value to counter
+      counter = counter / encoderMultiplier; // divide counter value by chosen amount to adjust responsiveness
 
       if (rbbuttonState == HIGH) { //use encoder to scroll through menu of settings
 

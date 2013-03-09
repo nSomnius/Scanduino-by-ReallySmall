@@ -1,4 +1,6 @@
 //reference required libraries
+#define ENCODER_DO_NOT_USE_INTERRUPTS
+#include <Encoder.h>
 #include <DigitalToggle.h> 
 #include <LiquidCrystal.h>
 #include <Wire.h>
@@ -28,11 +30,11 @@ int joyStickreadingY = 0; //current analogue reading of Y axis on joystick
 int rotaryCounter = 1; //which menu item to display when turning rotary encoder
 int counter = 1; //this variable will be changed by encoder input
 int encoderMultiplier = 4; //adjust this to tailor responsiveness of rotary encoder
+long int encoderCounter = 0;
+long position  = -999;
 
 //rotary encoder pins
-#define ENC_A A0
-#define ENC_B A1
-#define ENC_PORT PINC
+Encoder myEnc(A0, A1);
 
 //assign other analogue pins
 int joyStickX = A2; //analogue joystick for manual positioning
@@ -86,8 +88,6 @@ void setup()
   pinMode(pushButton, INPUT); //define pin as an input
   pinMode(rotarypushButton, INPUT); //define pin as an input
   pinMode(manualControlButton, INPUT); //define pin as an input
-  pinMode(ENC_A, INPUT); //define pin as an input
-  pinMode(ENC_B, INPUT); //define pin as an input
   pinMode(limitSwitchesX, INPUT); //define pin as an input
   pinMode(limitSwitchesY, INPUT); //define pin as an input
   pinMode(motorXdir, OUTPUT); //define pin as an output
@@ -103,8 +103,6 @@ void setup()
   digitalWrite(motorYdir, LOW); //start with motor in default fwd direction
   digitalWrite(focus, LOW); //start with focus pin low
   digitalWrite(shutter, LOW); //start with shutter pin low
-  digitalWrite(ENC_A, HIGH); //start with encoder pin high
-  digitalWrite(ENC_B, HIGH); //start with encoder pin high
   digitalWrite(pushButton, HIGH); //start with pushButton pin high
   digitalWrite(rotarypushButton, HIGH); //start with rotarypushButton pin high
   digitalWrite(manualControlButton, HIGH); //start with manualControlButton pin high
@@ -131,14 +129,11 @@ void loop(){
 
     else{
 
-      counter += read_encoder(); //assign current rotary encoder value to counter
-      counter = counter / encoderMultiplier; // divide counter value by chosen amount to adjust responsiveness
-
       if (rbbuttonState == HIGH) { //use encoder to scroll through menu of settings
 
         rotaryCounter = constrain(rotaryCounter, 0, 7); //limits choice to specified range
 
-        rotaryCounter = counter; //use encoder reading function to get rotaryCounter value
+        rotaryCounter += read_encoder(); //use encoder reading function to get rotaryCounter value
 
         if (rotaryCounter == 7){ //when counter value exceeds number of menu items
           rotaryCounter = 1; //reset it to 1 again to create a looping navigation
@@ -156,7 +151,7 @@ void loop(){
 
         if (rbbuttonState == LOW) { //press rotary encoder button within this menu item to edit variable
           numberOfImagesY = constrain(numberOfImagesY, 1, 25); //limits choice of input step size to specified range
-          numberOfImagesY = counter;  //use encoder reading function to set value of steps variable
+          numberOfImagesY += read_encoder();  //use encoder reading function to set value of steps variable
         }
 
         lcd.setCursor(0, 0);
@@ -181,7 +176,7 @@ void loop(){
 
         if (rbbuttonState == LOW) { //press rotary encoder button within this menu item to edit variable
           distanceY = constrain(distanceY, 1, 9990); //limits choice of input step size to specified range
-          distanceY = counter * 10; //use encoder reading function to set value of steps variable
+          distanceY += read_encoder() * 10; //use encoder reading function to set value of steps variable
         }
 
         lcd.setCursor(0, 0);
@@ -208,7 +203,7 @@ void loop(){
 
         if (rbbuttonState == LOW) { //press rotary encoder button within this menu item to edit variable
           numberOfImagesX = constrain(numberOfImagesX, 1, 25); //limits choice of input step size to specified range
-          numberOfImagesX = counter;  //use encoder reading function to set value of steps variable
+          numberOfImagesX += read_encoder();  //use encoder reading function to set value of steps variable
         }
 
         lcd.setCursor(0, 0);
@@ -232,7 +227,7 @@ void loop(){
 
         if (rbbuttonState == LOW) { //press rotary encoder button within this menu item to edit variable
           distanceX = constrain(distanceX, 1, 9990); //limits choice of input step size to specified range
-          distanceX = counter * 10; //use encoder reading function to set value of steps variable
+          distanceX += read_encoder() * 10; //use encoder reading function to set value of steps variable
         }
 
         lcd.setCursor(0, 0);
@@ -259,7 +254,7 @@ void loop(){
 
         if (rbbuttonState == LOW) { //press rotary encoder button within this menu item to edit variable
           startPosX = constrain(startPosX, 1, 9990); //limits choice of input step size to specified range
-          startPosX = counter * 10; //use encoder reading function to set value of steps variable
+          startPosX += read_encoder() * 10; //use encoder reading function to set value of steps variable
         }
 
         lcd.setCursor(0, 0);
@@ -286,7 +281,7 @@ void loop(){
 
         if (rbbuttonState == LOW) { //press rotary encoder button within this menu item to edit variable
           startPosY = constrain(startPosY, 1, 9990); //limits choice of input step size to specified range
-          startPosY = counter * 10; //use encoder reading function to set value of steps variable
+          startPosY += read_encoder() * 10; //use encoder reading function to set value of steps variable
         }
 
         lcd.setCursor(0, 0);
@@ -473,14 +468,17 @@ void manualControlButtonChange(){ //function to read the current state of the pu
 /* returns change in encoder state (-1,0,1) */
 int8_t read_encoder()
 {
-  static int8_t enc_states[] = { 
-    0,1,-1,0,-1,0,0,1,1,0,0,-1,0,-1,1,0
-  };
-  static uint8_t old_AB = 0;
-  /**/
-  old_AB <<= 2; //remember previous state
-  old_AB |= ( ENC_PORT & 0x03 ); //add current state
-  return ( enc_states[( 0x0f & old_AB )]);
+  long newPos = myEnc.read();
+  if (newPos != position) {
+
+    if(newPos % 4 == 0){
+      encoderCounter = newPos / 4;
+
+      position = newPos;
+
+    }
+  }
+  return (encoderCounter);
 }
 
 void findStart (){ //uses limitswitch feedback to reset carriage to a preset start position
@@ -645,6 +643,7 @@ void manualControl(){
     retreatY();
   }
 }
+
 
 
 

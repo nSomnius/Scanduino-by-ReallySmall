@@ -132,14 +132,14 @@ void loop(){
       if (rbbuttonState == HIGH) { //use encoder to scroll through menu of settings
 
         long newPos = myEnc.read();
-        newPos = constrain(newPos, -1, 29); //limits choice to specified range
+        newPos = constrain(newPos, -1, 25); //limits choice to specified range
 
-        if (newPos == 29){ //when counter value exceeds number of menu items
+        if (newPos == 25){ //when counter value exceeds number of menu items
           myEnc.write(0); //reset it to create a looping navigation
         }
 
         if (newPos == -1){ //when counter value goes below minimum number of menu items
-          myEnc.write(28); //reset it to create a looping navigation
+          myEnc.write(24); //reset it to create a looping navigation
         } 
         if (newPos != position) {
 

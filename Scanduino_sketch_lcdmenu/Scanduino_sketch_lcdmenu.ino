@@ -131,13 +131,13 @@ void loop(){
       
         uint8_t buttons = lcd.readButtons();
         
-        if (buttons & BUTTON_LEFT) { //if left button pushed go back one menu item
-         menuItem--;
-        }   
-        
         if (buttons & BUTTON_RIGHT) { //if right button pushed go forward one menu item
          menuItem++;
         }  
+        
+        if (buttons & BUTTON_LEFT) { //if left button pushed go back one menu item
+         menuItem--;
+        }   
 
         menuItem = constrain(menuItem, 0, 7); //limits choice to specified range
 
@@ -153,9 +153,15 @@ void loop(){
 
       case 1: //this menu screen changes the number of rows to scan
 
-        if (rbbuttonState == LOW) { //press rotary encoder button within this menu item to edit variable
-          numberOfImagesY = constrain(numberOfImagesY, 1, 25); //limits choice of input step size to specified range
-        }
+        if (buttons & BUTTON_UP) { //if up button pushed increment menu item value
+         numberOfImagesY++;
+        }   
+        
+        if (buttons & BUTTON_DOWN) { //if down button pushed decrement menu item value
+         numberOfImagesY--;
+        } 
+          
+        numberOfImagesY = constrain(numberOfImagesY, 1, 25); //limits choice of input step size to specified range
 
         lcd.setCursor(0, 0);
         lcd.print("Number of rows: ");
@@ -177,9 +183,15 @@ void loop(){
 
       case 2: //this menu screen changes the height of rows  
 
-        if (rbbuttonState == LOW) { //press rotary encoder button within this menu item to edit variable
-          distanceY = constrain(distanceY, 1, 9990); //limits choice of input step size to specified range
-        }
+        if (buttons & BUTTON_UP) { //if up button pushed increment menu item value
+         (distanceY++ * 10);
+        }   
+        
+        if (buttons & BUTTON_DOWN) { //if down button pushed decrement menu item value
+         (distanceY-- * 10);
+        } 
+          
+        distanceY = constrain(distanceY, 1, 9990); //limits choice of input step size to specified range
 
         lcd.setCursor(0, 0);
         lcd.print("Height of rows: ");
@@ -203,9 +215,15 @@ void loop(){
 
       case 3: //this menu screen changes the number of columns to scan per row
 
-        if (rbbuttonState == LOW) { //press rotary encoder button within this menu item to edit variable
-          numberOfImagesX = constrain(numberOfImagesX, 1, 25); //limits choice of input step size to specified range
-        }
+        if (buttons & BUTTON_UP) { //if up button pushed increment menu item value
+         (numberOfImagesX++);
+        }   
+        
+        if (buttons & BUTTON_DOWN) { //if down button pushed decrement menu item value
+         (numberOfImagesX--);
+        } 
+
+        numberOfImagesX = constrain(numberOfImagesX, 1, 25); //limits choice of input step size to specified range
 
         lcd.setCursor(0, 0);
         lcd.print("Number of cols: ");
@@ -226,9 +244,15 @@ void loop(){
 
       case 4: //this menu screen changes the width of columns
 
-        if (rbbuttonState == LOW) { //press rotary encoder button within this menu item to edit variable
-          distanceX = constrain(distanceX, 1, 9990); //limits choice of input step size to specified range
-        }
+        if (buttons & BUTTON_UP) { //if up button pushed increment menu item value
+         (distanceX++ * 10);
+        }   
+        
+        if (buttons & BUTTON_DOWN) { //if down button pushed decrement menu item value
+         (distanceX-- * 10);
+        } 
+
+        distanceX = constrain(distanceX, 1, 9990); //limits choice of input step size to specified range
 
         lcd.setCursor(0, 0);
         lcd.print("Width of cols:  ");
@@ -252,9 +276,15 @@ void loop(){
 
       case 5: //this menu screen changes the start position on the X axis
 
-        if (rbbuttonState == LOW) { //press rotary encoder button within this menu item to edit variable
-          startPosX = constrain(startPosX, 1, 9990); //limits choice of input step size to specified range
+        if (buttons & BUTTON_UP) { //if up button pushed increment menu item value
+         (startPosX++ * 10);
+        }   
+        
+        if (buttons & BUTTON_DOWN) { //if down button pushed decrement menu item value
+         (startPosX-- * 10);
         }
+
+        startPosX = constrain(startPosX, 1, 9990); //limits choice of input step size to specified range
 
         lcd.setCursor(0, 0);
         lcd.print("Xaxis start pos:");
@@ -278,9 +308,16 @@ void loop(){
 
       case 6: //this menu screen changes the start position on the Y axis 
 
-        if (rbbuttonState == LOW) { //press rotary encoder button within this menu item to edit variable
-          startPosY = constrain(startPosY, 1, 9990); //limits choice of input step size to specified range
+        if (buttons & BUTTON_UP) { //if up button pushed increment menu item value
+         (startPosY++ * 10);
+        }   
+        
+        if (buttons & BUTTON_DOWN) { //if down button pushed decrement menu item value
+         (startPosY-- * 10);
         }
+
+        startPosY = constrain(startPosY, 1, 9990); //limits choice of input step size to specified range
+
 
         lcd.setCursor(0, 0);
         lcd.print("Yaxis start pos:");

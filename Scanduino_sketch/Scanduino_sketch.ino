@@ -1,6 +1,4 @@
 //reference required libraries
-#define ENCODER_DO_NOT_USE_INTERRUPTS
-#include <Encoder.h>
 #include <DigitalToggle.h> 
 #include <LiquidCrystal.h>
 #include <Wire.h>
@@ -27,16 +25,9 @@ int manualSpeedX = 0; //delay between steps in manual mode on X axis, governing 
 int manualSpeedY = 0; //delay between steps in manual mode on Y axis, governing motor speed
 int joyStickreadingX = 0; //current analogue reading of X axis on joystick
 int joyStickreadingY = 0; //current analogue reading of Y axis on joystick
-int rotaryCounter = 1; //which menu item to display when turning rotary encoder
-int counter = 1; //this variable will be changed by encoder input
-int encoderMultiplier = 4; //adjust this to tailor responsiveness of rotary encoder
-long int encoderCounter = 0;
-long position  = -999;
+int menuItem = 1; //which menu item to display when turning rotary encoder
 
-//rotary encoder pins
-Encoder myEnc(A0, A1);
-
-//assign other analogue pins
+//assign analogue pins
 int joyStickX = A2; //analogue joystick for manual positioning
 int joyStickY = A3; //analogue joystick for manual positioning
 
@@ -128,55 +119,40 @@ void loop(){
     }
 
     else{
+      
+        uint8_t buttons = lcd.readButtons();
+        
+        if (buttons & BUTTON_RIGHT) { //if right button pushed go forward one menu item
+         menuItem++;
+        }  
+        
+        if (buttons & BUTTON_LEFT) { //if left button pushed go back one menu item
+         menuItem--;
+        }   
 
-      if (rbbuttonState == HIGH) { //use encoder to scroll through menu of settings
+        menuItem = constrain(menuItem, 0, 7); //limits choice to specified range
 
-        long newPos = myEnc.read();
-        newPos = constrain(newPos, -1, 25); //limits choice to specified range
-
-        if (newPos == 25){ //when counter value exceeds number of menu items
-          myEnc.write(0); //reset it to create a looping navigation
+        if (menuItem == 7){ //when counter value exceeds number of menu items
+          menuItem = 1; //reset it to 1 again to create a looping navigation
         }
 
-        if (newPos == -1){ //when counter value goes below minimum number of menu items
-          myEnc.write(24); //reset it to create a looping navigation
-        } 
-        if (newPos != position) {
+        if (menuItem == 0){ //when counter value goes below minimum number of menu items
+          menuItem = 6; //reset it to 6 again to create a looping navigation
+        }  
 
-          if(newPos % 4 == 0){
-            rotaryCounter = newPos / 4;
-            position = newPos;
-
-          }
-        }
-
-      } 
-
-      switch (rotaryCounter) {
+      switch (menuItem) {
 
       case 1: //this menu screen changes the number of rows to scan
 
-        if (rbbuttonState == LOW) { //press rotary encoder button within this menu item to edit variable
-
-        long newPos = myEnc.read();
-        newPos = constrain(newPos, 0, 101); //limits choice to specified range
-
-        if (newPos == 101){ //when counter value exceeds number of menu items
-          myEnc.write(1); //reset it to create a looping navigation
-        }
-
-        if (newPos == 0){ //when counter value goes below minimum number of menu items
-          myEnc.write(100); //reset it to create a looping navigation
+        if (buttons & BUTTON_UP) { //if up button pushed increment menu item value
+         numberOfImagesY++;
+        }   
+        
+        if (buttons & BUTTON_DOWN) { //if down button pushed decrement menu item value
+         numberOfImagesY--;
         } 
-        if (newPos != position) {
-
-          if(newPos % 4 == 0){
-            numberOfImagesY = newPos / 4;
-            position = newPos;
-
-          }
-        }
-        }
+          
+        numberOfImagesY = constrain(numberOfImagesY, 1, 25); //limits choice of input step size to specified range
 
         lcd.setCursor(0, 0);
         lcd.print("Number of rows: ");
@@ -198,27 +174,15 @@ void loop(){
 
       case 2: //this menu screen changes the height of rows  
 
-        if (rbbuttonState == LOW) { //press rotary encoder button within this menu item to edit variable
-
-        long newPos = myEnc.read();
-        newPos = constrain(newPos, 0, 39961); //limits choice to specified range
-
-        if (newPos == 39961){ //when counter value exceeds number of menu items
-          myEnc.write(1); //reset it to create a looping navigation
-        }
-
-        if (newPos == 0){ //when counter value goes below minimum number of menu items
-          myEnc.write(39960); //reset it to create a looping navigation
+        if (buttons & BUTTON_UP) { //if up button pushed increment menu item value
+         distanceY = (distanceY + 10);
+        }   
+        
+        if (buttons & BUTTON_DOWN) { //if down button pushed decrement menu item value
+         distanceY = (distanceY - 10);
         } 
-        if (newPos != position) {
-
-          if(newPos % 4 == 0){
-            distanceY = newPos / 4;
-            position = newPos;
-
-          }
-        }
-        }
+          
+        distanceY = constrain(distanceY, 10, 9990); //limits choice of input step size to specified range
 
         lcd.setCursor(0, 0);
         lcd.print("Height of rows: ");
@@ -242,28 +206,15 @@ void loop(){
 
       case 3: //this menu screen changes the number of columns to scan per row
 
-        if (rbbuttonState == LOW) { //press rotary encoder button within this menu item to edit variable
-
-        long newPos = myEnc.read();
-        newPos = constrain(newPos, 0, 101); //limits choice to specified range
-
-        if (newPos == 101){ //when counter value exceeds number of menu items
-          myEnc.write(1); //reset it to create a looping navigation
-        }
-
-        if (newPos == 0){ //when counter value goes below minimum number of menu items
-          myEnc.write(100); //reset it to create a looping navigation
+        if (buttons & BUTTON_UP) { //if up button pushed increment menu item value
+         (numberOfImagesX++);
+        }   
+        
+        if (buttons & BUTTON_DOWN) { //if down button pushed decrement menu item value
+         (numberOfImagesX--);
         } 
-        if (newPos != position) {
 
-          if(newPos % 4 == 0){
-            numberOfImagesX = newPos / 4;
-            position = newPos;
-
-          }
-        }
-
-        }
+        numberOfImagesX = constrain(numberOfImagesX, 1, 25); //limits choice of input step size to specified range
 
         lcd.setCursor(0, 0);
         lcd.print("Number of cols: ");
@@ -284,28 +235,15 @@ void loop(){
 
       case 4: //this menu screen changes the width of columns
 
-        if (rbbuttonState == LOW) { //press rotary encoder button within this menu item to edit variable
-
-        long newPos = myEnc.read();
-        newPos = constrain(newPos, 0, 39961); //limits choice to specified range
-
-        if (newPos == 39961){ //when counter value exceeds number of menu items
-          myEnc.write(1); //reset it to create a looping navigation
-        }
-
-        if (newPos == 0){ //when counter value goes below minimum number of menu items
-          myEnc.write(39960); //reset it to create a looping navigation
+        if (buttons & BUTTON_UP) { //if up button pushed increment menu item value
+         distanceX = (distanceX + 10);
+        }   
+        
+        if (buttons & BUTTON_DOWN) { //if down button pushed decrement menu item value
+         distanceX = (distanceX - 10);
         } 
-        if (newPos != position) {
 
-          if(newPos % 4 == 0){
-            distanceX = newPos / 4;
-            position = newPos;
-
-          }
-        }
-
-        }
+        distanceX = constrain(distanceX, 10, 9990); //limits choice of input step size to specified range
 
         lcd.setCursor(0, 0);
         lcd.print("Width of cols:  ");
@@ -329,28 +267,15 @@ void loop(){
 
       case 5: //this menu screen changes the start position on the X axis
 
-        if (rbbuttonState == LOW) { //press rotary encoder button within this menu item to edit variable
-
-        long newPos = myEnc.read();
-        newPos = constrain(newPos, 0, 39961); //limits choice to specified range
-
-        if (newPos == 39961){ //when counter value exceeds number of menu items
-          myEnc.write(1); //reset it to create a looping navigation
+        if (buttons & BUTTON_UP) { //if up button pushed increment menu item value
+         startPosX = (startPosX + 10);
+        }   
+        
+        if (buttons & BUTTON_DOWN) { //if down button pushed decrement menu item value
+         startPosX = (startPosX - 10);
         }
 
-        if (newPos == 0){ //when counter value goes below minimum number of menu items
-          myEnc.write(39960); //reset it to create a looping navigation
-        } 
-        if (newPos != position) {
-
-          if(newPos % 4 == 0){
-            startPosX = newPos / 4;
-            position = newPos;
-
-          }
-        }
-
-        }
+        startPosX = constrain(startPosX, 10, 9990); //limits choice of input step size to specified range
 
         lcd.setCursor(0, 0);
         lcd.print("Xaxis start pos:");
@@ -374,28 +299,16 @@ void loop(){
 
       case 6: //this menu screen changes the start position on the Y axis 
 
-        if (rbbuttonState == LOW) { //press rotary encoder button within this menu item to edit variable
-
-        long newPos = myEnc.read();
-        newPos = constrain(newPos, 0, 39961); //limits choice to specified range
-
-        if (newPos == 39961){ //when counter value exceeds number of menu items
-          myEnc.write(1); //reset it to create a looping navigation
+        if (buttons & BUTTON_UP) { //if up button pushed increment menu item value
+         startPosY = (startPosY + 10);
+        }   
+        
+        if (buttons & BUTTON_DOWN) { //if down button pushed decrement menu item value
+         startPosY = (startPosY - 10);
         }
 
-        if (newPos == 0){ //when counter value goes below minimum number of menu items
-          myEnc.write(39960); //reset it to create a looping navigation
-        } 
-        if (newPos != position) {
+        startPosY = constrain(startPosY, 10, 9990); //limits choice of input step size to specified range
 
-          if(newPos % 4 == 0){
-            startPosY = newPos / 4;
-            position = newPos;
-
-          }
-        }
-
-        }
 
         lcd.setCursor(0, 0);
         lcd.print("Yaxis start pos:");
@@ -578,22 +491,6 @@ void manualControlButtonChange(){ //function to read the current state of the pu
   mcprevious = mcreading;
 } 
 
-/* returns change in encoder state (-1,0,1) */
-int8_t read_encoder()
-{
-  long newPos = myEnc.read();
-  if (newPos != position) {
-
-    if(newPos % 4 == 0){
-      encoderCounter = newPos / 4;
-
-      position = newPos;
-
-    }
-  }
-  return (encoderCounter);
-}
-
 void findStart (){ //uses limitswitch feedback to reset carriage to a preset start position
 
   //first reset the x axis
@@ -756,8 +653,6 @@ void manualControl(){
     retreatY();
   }
 }
-
-
 
 
 

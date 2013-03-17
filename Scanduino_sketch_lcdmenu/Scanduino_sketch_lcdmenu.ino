@@ -184,14 +184,14 @@ void loop(){
       case 2: //this menu screen changes the height of rows  
 
         if (buttons & BUTTON_UP) { //if up button pushed increment menu item value
-         (distanceY++ * 10);
+         distanceY = (distanceY + 10);
         }   
         
         if (buttons & BUTTON_DOWN) { //if down button pushed decrement menu item value
-         (distanceY-- * 10);
+         distanceY = (distanceY - 10);
         } 
           
-        distanceY = constrain(distanceY, 1, 9990); //limits choice of input step size to specified range
+        distanceY = constrain(distanceY, 10, 9990); //limits choice of input step size to specified range
 
         lcd.setCursor(0, 0);
         lcd.print("Height of rows: ");
@@ -245,14 +245,14 @@ void loop(){
       case 4: //this menu screen changes the width of columns
 
         if (buttons & BUTTON_UP) { //if up button pushed increment menu item value
-         (distanceX++ * 10);
+         distanceX = (distanceX + 10);
         }   
         
         if (buttons & BUTTON_DOWN) { //if down button pushed decrement menu item value
-         (distanceX-- * 10);
+         distanceX = (distanceX - 10);
         } 
 
-        distanceX = constrain(distanceX, 1, 9990); //limits choice of input step size to specified range
+        distanceX = constrain(distanceX, 10, 9990); //limits choice of input step size to specified range
 
         lcd.setCursor(0, 0);
         lcd.print("Width of cols:  ");
@@ -277,14 +277,14 @@ void loop(){
       case 5: //this menu screen changes the start position on the X axis
 
         if (buttons & BUTTON_UP) { //if up button pushed increment menu item value
-         (startPosX++ * 10);
+         startPosX = (startPosX + 10);
         }   
         
         if (buttons & BUTTON_DOWN) { //if down button pushed decrement menu item value
-         (startPosX-- * 10);
+         startPosX = (startPosX - 10);
         }
 
-        startPosX = constrain(startPosX, 1, 9990); //limits choice of input step size to specified range
+        startPosX = constrain(startPosX, 10, 9990); //limits choice of input step size to specified range
 
         lcd.setCursor(0, 0);
         lcd.print("Xaxis start pos:");
@@ -309,14 +309,14 @@ void loop(){
       case 6: //this menu screen changes the start position on the Y axis 
 
         if (buttons & BUTTON_UP) { //if up button pushed increment menu item value
-         (startPosY++ * 10);
+         startPosY = (startPosY + 10);
         }   
         
         if (buttons & BUTTON_DOWN) { //if down button pushed decrement menu item value
-         (startPosY-- * 10);
+         startPosY = (startPosY - 10);
         }
 
-        startPosY = constrain(startPosY, 1, 9990); //limits choice of input step size to specified range
+        startPosY = constrain(startPosY, 10, 9990); //limits choice of input step size to specified range
 
 
         lcd.setCursor(0, 0);

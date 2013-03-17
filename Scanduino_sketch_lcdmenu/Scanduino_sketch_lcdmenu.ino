@@ -27,12 +27,7 @@ int joyStickreadingX = 0; //current analogue reading of X axis on joystick
 int joyStickreadingY = 0; //current analogue reading of Y axis on joystick
 int menuItem = 1; //which menu item to display when turning rotary encoder
 
-//rotary encoder pins
-#define ENC_A A0
-#define ENC_B A1
-#define ENC_PORT PINC
-
-//assign other analogue pins
+//assign analogue pins
 int joyStickX = A2; //analogue joystick for manual positioning
 int joyStickY = A3; //analogue joystick for manual positioning
 
@@ -84,8 +79,6 @@ void setup()
   pinMode(pushButton, INPUT); //define pin as an input
   pinMode(rotarypushButton, INPUT); //define pin as an input
   pinMode(manualControlButton, INPUT); //define pin as an input
-  pinMode(ENC_A, INPUT); //define pin as an input
-  pinMode(ENC_B, INPUT); //define pin as an input
   pinMode(limitSwitchesX, INPUT); //define pin as an input
   pinMode(limitSwitchesY, INPUT); //define pin as an input
   pinMode(motorXdir, OUTPUT); //define pin as an output
@@ -101,8 +94,6 @@ void setup()
   digitalWrite(motorYdir, LOW); //start with motor in default fwd direction
   digitalWrite(focus, LOW); //start with focus pin low
   digitalWrite(shutter, LOW); //start with shutter pin low
-  digitalWrite(ENC_A, HIGH); //start with encoder pin high
-  digitalWrite(ENC_B, HIGH); //start with encoder pin high
   digitalWrite(pushButton, HIGH); //start with pushButton pin high
   digitalWrite(rotarypushButton, HIGH); //start with rotarypushButton pin high
   digitalWrite(manualControlButton, HIGH); //start with manualControlButton pin high
@@ -499,19 +490,6 @@ void manualControlButtonChange(){ //function to read the current state of the pu
 
   mcprevious = mcreading;
 } 
-
-/* returns change in encoder state (-1,0,1) */
-int8_t read_encoder()
-{
-  static int8_t enc_states[] = { 
-    0,1,-1,0,-1,0,0,1,1,0,0,-1,0,-1,1,0
-  };
-  static uint8_t old_AB = 0;
-  /**/
-  old_AB <<= 2; //remember previous state
-  old_AB |= ( ENC_PORT & 0x03 ); //add current state
-  return ( enc_states[( 0x0f & old_AB )]);
-}
 
 void findStart (){ //uses limitswitch feedback to reset carriage to a preset start position
 

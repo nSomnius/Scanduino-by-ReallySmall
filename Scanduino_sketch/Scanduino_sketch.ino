@@ -507,7 +507,7 @@ void findStart (){ //uses limitswitch feedback to reset carriage to a preset sta
 
   int i=0;
 
-  while (digitalRead(limitSwitchesX) == LOW && i < startPosX) //iterate doStep signal for as long as the limit switch remains pressed
+  while (digitalRead(limitSwitchesX) == LOW || i < startPosX) //iterate doStep signal for as long as the limit switch remains pressed
     //and until preset distance away from switch is reached 
 
   {  
@@ -532,7 +532,7 @@ void findStart (){ //uses limitswitch feedback to reset carriage to a preset sta
 
   int j=0;
 
-  while (digitalRead(limitSwitchesY) == LOW && j < startPosY) //iterate doStep signal for as long as the limit switch remains pressed
+  while (digitalRead(limitSwitchesY) == LOW || j < startPosY) //iterate doStep signal for as long as the limit switch remains pressed
     //and until preset distance away from switch is reached 
 
   {  

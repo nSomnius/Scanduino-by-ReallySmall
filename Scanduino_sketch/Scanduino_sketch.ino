@@ -491,60 +491,51 @@ void manualControlButtonChange(){ //function to read the current state of the pu
   mcprevious = mcreading;
 } 
 
-void findStart (){ //uses limitswitch feedback to reset carriage to a preset start position
+void findStart(){ //uses limitswitch feedback to reset carriage to a preset start position
 
   //first reset the x axis
-  digitalWrite(motorXdir, HIGH); //reverse stepper direction
 
   while (digitalRead(limitSwitchesX) == HIGH){ //keep reversing until the limitswitch is pressed
-
+    digitalWrite(motorXdir, HIGH); //reverse stepper direction
     digitalWrite(motorXstep, LOW);  //this LOW to HIGH change is what creates the
     digitalWrite(motorXstep, HIGH); //"Rising Edge" so the easydriver knows to when to step
     delayMicroseconds(stepSpeed); //delay time between steps, too fast and motor stalls
   }
 
-  digitalWrite(motorXdir, LOW); //reset stepper direction
+  int i=0; //used to count steps made to move to startPosX
 
-  int i=0;
-
-  while (digitalRead(limitSwitchesX) == LOW || i < startPosX) //iterate doStep signal for as long as the limit switch remains pressed
-    //and until preset distance away from switch is reached 
-
-  {  
+  while (digitalRead(limitSwitchesX) == LOW || i < startPosX){ //iterate doStep signal until start position reached
+    digitalWrite(motorXdir, LOW); //reset stepper direction
     digitalWrite(motorXstep, LOW); //this LOW to HIGH change is what creates the
     digitalWrite(motorXstep, HIGH); //"Rising Edge" so the easydriver knows to when to step
     delayMicroseconds(stepSpeed); //delay time between steps, too fast and motor stalls
-    i = i + 1;
+    i++;
   }
 
-
+  i=0; //reset counter
+  
   //then reset the y axis
-  digitalWrite(motorYdir, LOW); //reverse stepper direction
 
   while (digitalRead(limitSwitchesY) == HIGH){ //keep reversing until the limitswitch is pressed
-
+    digitalWrite(motorYdir, HIGH); //reverse stepper direction
     digitalWrite(motorYstep, LOW);  //this LOW to HIGH change is what creates the
     digitalWrite(motorYstep, HIGH); //"Rising Edge" so the easydriver knows to when to step
     delayMicroseconds(stepSpeed); //delay time between steps, too fast and motor stalls
   }
 
-  digitalWrite(motorYdir, LOW); //reset stepper direction
+  int j=0; //used to count steps made to move to startPosY
 
-  int j=0;
-
-  while (digitalRead(limitSwitchesY) == LOW || j < startPosY) //iterate doStep signal for as long as the limit switch remains pressed
-    //and until preset distance away from switch is reached 
-
-  {  
+  while (digitalRead(limitSwitchesY) == LOW || j < startPosY){ //iterate doStep signal until start position reached
+    digitalWrite(motorYdir, LOW); //reset stepper direction
     digitalWrite(motorYstep, LOW); //this LOW to HIGH change is what creates the
     digitalWrite(motorYstep, HIGH); //"Rising Edge" so the easydriver knows to when to step
     delayMicroseconds(stepSpeed); //delay time between steps, too fast and motor stalls
-    j = j + 1;
+    j++;
   }
 
+  j=0; //reset counter
 
 }
-
 
 void retreatX(){ //moves platform back into safe zone if a limit switch on the X axis is tripped during operation
 
@@ -566,7 +557,6 @@ void retreatX(){ //moves platform back into safe zone if a limit switch on the X
   digitalToggle(motorXdir); //reset motor back to original direction once limit switch is no longer pressed
   lcd.clear();
 }
-
 
 void retreatY(){ //moves platform back into safe zone if a limit switch on the Y axis is tripped during operation
 

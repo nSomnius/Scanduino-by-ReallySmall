@@ -33,7 +33,7 @@ int joyStickY = A3; //analogue joystick for manual positioning
 
 //assign digital pins
 int pushButton = 2;  // Pin 2 = Start/ Stop button
-int rotarypushButton = 3; //select/ unselect menu item button
+int manualControlButton = 3; //select/ unselect menu item button
 int motorXdir = 4; //X stepper motor direction
 int motorXstep = 5; //send step signal to X stepper motor
 int motorYdir = 6; //Y stepper motor direction
@@ -42,7 +42,6 @@ int limitSwitchesX = 8; //limit switches to stop stepping if end of travel on ra
 int limitSwitchesY = 9; //limit switches to stop stepping if end of travel on rail is reached at either end
 int focus = 10; //send an autofocus signal to the camera
 int shutter = 11; //send a shutter signal to the camera
-int manualControlButton = 12; //toggle between manual control and setup menu
 
 //pushButton toggle
 volatile int buttonState = HIGH; // the current state of the output pin
@@ -72,12 +71,11 @@ void setup()
   lcd.begin(16, 2);
 
   attachInterrupt(0, buttonChange, CHANGE);  // Button on interrupt 0 - pin 2
-  attachInterrupt(1, rotarybuttonChange, CHANGE);  // Button on interrupt 1 - pin 3
+  attachInterrupt(1, manualControlButtonChange, CHANGE);  // Button on interrupt 1 - pin 3
 
   pinMode(joyStickX, INPUT); //define pin as an input
   pinMode(joyStickY, INPUT); //define pin as an input
   pinMode(pushButton, INPUT); //define pin as an input
-  pinMode(rotarypushButton, INPUT); //define pin as an input
   pinMode(manualControlButton, INPUT); //define pin as an input
   pinMode(limitSwitchesX, INPUT); //define pin as an input
   pinMode(limitSwitchesY, INPUT); //define pin as an input
@@ -95,7 +93,6 @@ void setup()
   digitalWrite(focus, LOW); //start with focus pin low
   digitalWrite(shutter, LOW); //start with shutter pin low
   digitalWrite(pushButton, HIGH); //start with pushButton pin high
-  digitalWrite(rotarypushButton, HIGH); //start with rotarypushButton pin high
   digitalWrite(manualControlButton, HIGH); //start with manualControlButton pin high
   digitalWrite(limitSwitchesX, HIGH); //start with limitSwitchesX pin high
   digitalWrite(limitSwitchesY, HIGH);//start with limitSwitchesY pin high
@@ -462,22 +459,6 @@ void buttonChange(){ //function to read the current state of the push button
   }
 
   previous = reading;
-} 
-
-void rotarybuttonChange(){ //function to read the current state of the push button
-
-  rbreading = digitalRead(rotarypushButton);
-
-  if (rbreading == LOW && rbprevious == HIGH && millis() - rbtime > rbdebounce) {
-    if (rbbuttonState == HIGH)
-      rbbuttonState = LOW;
-    else
-      rbbuttonState = HIGH;
-
-    rbtime = millis();    
-  }
-
-  rbprevious = rbreading;
 } 
 
 void manualControlButtonChange(){ //function to read the current state of the push button

@@ -50,14 +50,7 @@ volatile int previous = LOW; // the previous reading from the input pin
 volatile long time = 0; // the last time the output pin was toggled
 volatile long debounce = 400; // the debounce time, increase if the output flickers
 
-//rotary pushButton toggle
-volatile int rbbuttonState = HIGH; //the current state of the output pin
-volatile int rbreading; //the current reading from the input pin
-volatile int rbprevious = LOW; //the previous reading from the input pin
-volatile long rbtime = 0; //the last time the output pin was toggled
-volatile long rbdebounce = 400; //the debounce time, increase if the output flickers
-
-//manual pushControlButton toggle
+//manualControl pushButton toggle
 volatile int mcbuttonState = HIGH; //the current state of the output pin
 volatile int mcreading; //the current reading from the input pin
 volatile int mcprevious = LOW; //the previous reading from the input pin

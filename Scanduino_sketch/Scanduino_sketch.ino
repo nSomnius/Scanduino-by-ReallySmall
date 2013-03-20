@@ -14,13 +14,13 @@ Adafruit_RGBLCDShield lcd = Adafruit_RGBLCDShield();
 //global variables
 int stepCountX = 0; //number of moves along X axis
 int stepCountY = 0; //number of moves along Y axis
-int distanceX = 1000; //how far to move along X axis
-int distanceY = 2000; //how far to move along Y axis
+int distanceX = 40; //how far to move along X axis
+int distanceY = 40; //how far to move along Y axis
 int numberOfImagesX = 5; // how many images to take per row
 int numberOfImagesY = 3; // how many rows of images to take
 int stepSpeed = 8000; //delay in microseconds between motor steps
-int startPosX = 20000; //distance to move away from limitswitches on X axis, dependant on film format
-int startPosY = 10000; //distance to move away from limitswitches on X axis, dependant on film format
+int startPosX = 200; //distance to move away from limitswitches on X axis, dependant on film format
+int startPosY = 200; //distance to move away from limitswitches on X axis, dependant on film format
 int manualSpeedX = 0; //delay between steps in manual mode on X axis, governing motor speed
 int manualSpeedY = 0; //delay between steps in manual mode on Y axis, governing motor speed
 int joyStickreadingX = 0; //current analogue reading of X axis on joystick
@@ -336,6 +336,7 @@ void loop(){
   }  
 
   else{ //this section runs the actual scan using the settings chosen in the previous section
+  findStart();
     for (int i = 0; i < numberOfImagesY - 1; i++){ //Repeat until count equals numberOfImagesY - 1
       for (int i = 0; i < numberOfImagesX - 1; i++){ //Repeat the function until count equals numberOfImagesX - 1
         digitalWrite(focus, HIGH); // Trigger camera autofocus - camera may not take picture in some modes if this is not triggered first
@@ -588,7 +589,7 @@ void manualControl(){
 
     int j = joyStickreadingX - 516;
     j = abs(j);
-    manualSpeedX = 70000/j;  
+    manualSpeedX = 700000/j;  
 
 
     if (joyStickreadingX >= 625){
@@ -619,7 +620,7 @@ void manualControl(){
 
     int k = joyStickreadingY - 516;
     k = abs(k);
-    manualSpeedY = 70000/k;  
+    manualSpeedY = 700000/k;  
 
 
     if (joyStickreadingY >= 625){

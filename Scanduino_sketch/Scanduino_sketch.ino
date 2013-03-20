@@ -119,39 +119,39 @@ void loop(){
     }
 
     else{
-      
-        uint8_t buttons = lcd.readButtons();
-        
-        if (buttons & BUTTON_RIGHT) { //if right button pushed go forward one menu item
-         menuItem++;
-        }  
-        
-        if (buttons & BUTTON_LEFT) { //if left button pushed go back one menu item
-         menuItem--;
-        }   
 
-        menuItem = constrain(menuItem, 0, 7); //limits choice to specified range
+      uint8_t buttons = lcd.readButtons();
 
-        if (menuItem == 7){ //when counter value exceeds number of menu items
-          menuItem = 1; //reset it to 1 again to create a looping navigation
-        }
+      if (buttons & BUTTON_RIGHT) { //if right button pushed go forward one menu item
+        menuItem++;
+      }  
 
-        if (menuItem == 0){ //when counter value goes below minimum number of menu items
-          menuItem = 6; //reset it to 6 again to create a looping navigation
-        }  
+      if (buttons & BUTTON_LEFT) { //if left button pushed go back one menu item
+        menuItem--;
+      }   
+
+      menuItem = constrain(menuItem, 0, 7); //limits choice to specified range
+
+      if (menuItem == 7){ //when counter value exceeds number of menu items
+        menuItem = 1; //reset it to 1 again to create a looping navigation
+      }
+
+      if (menuItem == 0){ //when counter value goes below minimum number of menu items
+        menuItem = 6; //reset it to 6 again to create a looping navigation
+      }  
 
       switch (menuItem) {
 
       case 1: //this menu screen changes the number of rows to scan
 
         if (buttons & BUTTON_UP) { //if up button pushed increment menu item value
-         numberOfImagesY++;
+          numberOfImagesY++;
         }   
-        
+
         if (buttons & BUTTON_DOWN) { //if down button pushed decrement menu item value
-         numberOfImagesY--;
+          numberOfImagesY--;
         } 
-          
+
         numberOfImagesY = constrain(numberOfImagesY, 1, 25); //limits choice of input step size to specified range
 
         lcd.setCursor(0, 0);
@@ -175,13 +175,13 @@ void loop(){
       case 2: //this menu screen changes the height of rows  
 
         if (buttons & BUTTON_UP) { //if up button pushed increment menu item value
-         distanceY = (distanceY + 10);
+          distanceY = (distanceY + 10);
         }   
-        
+
         if (buttons & BUTTON_DOWN) { //if down button pushed decrement menu item value
-         distanceY = (distanceY - 10);
+          distanceY = (distanceY - 10);
         } 
-          
+
         distanceY = constrain(distanceY, 10, 9990); //limits choice of input step size to specified range
 
         lcd.setCursor(0, 0);
@@ -207,11 +207,11 @@ void loop(){
       case 3: //this menu screen changes the number of columns to scan per row
 
         if (buttons & BUTTON_UP) { //if up button pushed increment menu item value
-         (numberOfImagesX++);
+          (numberOfImagesX++);
         }   
-        
+
         if (buttons & BUTTON_DOWN) { //if down button pushed decrement menu item value
-         (numberOfImagesX--);
+          (numberOfImagesX--);
         } 
 
         numberOfImagesX = constrain(numberOfImagesX, 1, 25); //limits choice of input step size to specified range
@@ -236,11 +236,11 @@ void loop(){
       case 4: //this menu screen changes the width of columns
 
         if (buttons & BUTTON_UP) { //if up button pushed increment menu item value
-         distanceX = (distanceX + 10);
+          distanceX = (distanceX + 10);
         }   
-        
+
         if (buttons & BUTTON_DOWN) { //if down button pushed decrement menu item value
-         distanceX = (distanceX - 10);
+          distanceX = (distanceX - 10);
         } 
 
         distanceX = constrain(distanceX, 10, 9990); //limits choice of input step size to specified range
@@ -268,11 +268,11 @@ void loop(){
       case 5: //this menu screen changes the start position on the X axis
 
         if (buttons & BUTTON_UP) { //if up button pushed increment menu item value
-         startPosX = (startPosX + 10);
+          startPosX = (startPosX + 10);
         }   
-        
+
         if (buttons & BUTTON_DOWN) { //if down button pushed decrement menu item value
-         startPosX = (startPosX - 10);
+          startPosX = (startPosX - 10);
         }
 
         startPosX = constrain(startPosX, 10, 9990); //limits choice of input step size to specified range
@@ -300,11 +300,11 @@ void loop(){
       case 6: //this menu screen changes the start position on the Y axis 
 
         if (buttons & BUTTON_UP) { //if up button pushed increment menu item value
-         startPosY = (startPosY + 10);
+          startPosY = (startPosY + 10);
         }   
-        
+
         if (buttons & BUTTON_DOWN) { //if down button pushed decrement menu item value
-         startPosY = (startPosY - 10);
+          startPosY = (startPosY - 10);
         }
 
         startPosY = constrain(startPosY, 10, 9990); //limits choice of input step size to specified range
@@ -336,47 +336,72 @@ void loop(){
   }  
 
   else{ //this section runs the actual scan using the settings chosen in the previous section
-  findStart();
+    lcd.clear();
+    lcd.setCursor(0, 1);
+    lcd.print("Finding start");
+    findStart(); //move to the home position
+  
     for (int i = 0; i < numberOfImagesY - 1; i++){ //Repeat until count equals numberOfImagesY - 1
+    
       for (int i = 0; i < numberOfImagesX - 1; i++){ //Repeat the function until count equals numberOfImagesX - 1
+      
+        lcd.clear();
+        lcd.setCursor(0, 1);
+        lcd.print("Scan started");
+      
         digitalWrite(focus, HIGH); // Trigger camera autofocus - camera may not take picture in some modes if this is not triggered first
         digitalWrite(shutter, HIGH); // Trigger camera shutter
         delay(200); // Small delay needed for camera to process above signals
         digitalWrite(shutter, LOW); // Switch off camera trigger signal
         digitalWrite(focus, LOW); // Switch off camera focus signal
         delay(2000); //Pause to allow for camera to take picture with 2 sec mirror lockup
-        int i = 0;
+        int i = 0; //used to count steps made
         while (i < distanceX && digitalRead(limitSwitchesX) == HIGH){ // Move as far as distanceX
           digitalWrite(motorXstep, LOW); // This LOW to HIGH change is what creates the
           digitalWrite(motorXstep, HIGH); // "Rising Edge" so the easydriver knows to when to step
           delayMicroseconds(stepSpeed); // Delay time between steps, too fast and motor stalls
-          i = i + 1;
+          i++;
           if (digitalRead(limitSwitchesX) == LOW){ //stop motor and reverse if limit switch hit
             retreatX();
             break;
           }
         }
+        i = 0; //reset counter
+        
+        //Last image of row
+        lcd.clear();
+        lcd.setCursor(0, 1);
+        lcd.print("Final pic of row");
         digitalWrite(focus, HIGH); // Trigger camera autofocus - camera may not take picture in some modes if this is not triggered first
         digitalWrite(shutter, HIGH); // Trigger camera shutter
         delay(200); // Small delay needed for camera to process above signals
         digitalWrite(shutter, LOW); // Switch off camera trigger signal
         digitalWrite(focus, LOW); // Switch off camera focus signal
         delay(2000); //Pause to allow for camera to take picture with 2 sec mirror lockup
-        digitalToggle(motorXdir);
-        int j = 0;
+        digitalToggle(motorXdir); //reverse x axis motor direction for next row
+        
+        //Move down to next row
+        lcd.clear();
+        lcd.setCursor(0, 1);
+        lcd.print("Next row");
+        int j = 0; //used to count steps made
         while (j < distanceY && digitalRead(limitSwitchesY) == HIGH){ // Move as far as distanceY - moves down to the next row
           digitalWrite(motorYstep, LOW); // This LOW to HIGH change is what creates the
           digitalWrite(motorYstep, HIGH); // "Rising Edge" so the easydriver knows to when to step
           delayMicroseconds(stepSpeed); // Delay time between steps, too fast and motor stalls
-          j = j + 1;
+          j++;
           if (digitalRead(limitSwitchesY) == LOW){ //stop motor and reverse if limit switch hit
             retreatY();
             break;
           }
         }
+        j = 0; //reset counter
       }
     }
     //Final row
+    lcd.clear();
+    lcd.setCursor(0, 1);
+    lcd.print("Final row");
     for (int i = 0; i < numberOfImagesX - 1; i++){ //Repeat the function until count equals numberOfImagesX - 1
       digitalWrite(focus, HIGH); // Trigger camera autofocus - camera may not take picture in some modes if this is not triggered first
       digitalWrite(shutter, HIGH); // Trigger camera shutter
@@ -384,17 +409,21 @@ void loop(){
       digitalWrite(shutter, LOW); // Switch off camera trigger signal
       digitalWrite(focus, LOW); // Switch off camera focus signal
       delay(2000); //Pause to allow for camera to take picture with 2 sec mirror lockup
-      int i = 0;
+      int i = 0; //used to count steps made
       while (i < distanceX && digitalRead(limitSwitchesX) == HIGH){ // Move as far as distanceX
         digitalWrite(motorXstep, LOW); // This LOW to HIGH change is what creates the
         digitalWrite(motorXstep, HIGH); // "Rising Edge" so the easydriver knows to when to step
         delayMicroseconds(stepSpeed); // Delay time between steps, too fast and motor stalls
-        i = i + 1;
+        i++;
         if (digitalRead(limitSwitchesX) == LOW){ //stop motor and reverse if limit switch hit
           retreatX();
           break;
         }
       }
+      i = 0; //reset counter
+      lcd.clear();
+      lcd.setCursor(0, 1);
+      lcd.print("Final picture");
       digitalWrite(focus, HIGH); // Trigger camera autofocus - camera may not take picture in some modes if this is not triggered first
       digitalWrite(shutter, HIGH); // Trigger camera shutter
       delay(200); // Small delay needed for camera to process above signals
@@ -405,42 +434,17 @@ void loop(){
     }
 
     //Return to start position
-    if ((numberOfImagesY % 2) != 0) { // If number of rows is odd move camera back to left
-      digitalWrite(motorXdir, HIGH); //Reverse X axis motor
-      int i = 0;
-      while (i < distanceX * (numberOfImagesX - 1) && digitalRead(limitSwitchesX) == HIGH){
-        digitalWrite(motorXstep, LOW); // This LOW to HIGH change is what creates the
-        digitalWrite(motorXstep, HIGH); // "Rising Edge" so the easydriver knows to when to step
-        delayMicroseconds(stepSpeed); // Delay time between steps, too fast and motor stalls
-        i = i + 1;
-        if (digitalRead(limitSwitchesX) == LOW){ //stop motor and reverse if limit switch hit
-          retreatX();
-          break;
-        }
-        digitalWrite(motorXdir, LOW); //Set motor back to default direction
-      }
+    lcd.clear();
+    lcd.setCursor(0, 1);
+    lcd.print("Return to start");
+    findStart();//move to default start point 
+    lcd.clear();
+    lcd.setCursor(0, 1);
+    lcd.print("finished");
+    delay(2000);
+    lcd.clear();
+    buttonState = HIGH; // Return to menu options
 
-      digitalWrite(motorYdir, HIGH); //Reverse Y axis motor
-      int j = 0;
-      while (j < (numberOfImagesY - 1) * distanceY && digitalRead(limitSwitchesY) == HIGH){
-        digitalWrite(motorYstep, LOW); // This LOW to HIGH change is what creates the
-        digitalWrite(motorYstep, HIGH); // "Rising Edge" so the easydriver knows to when to step
-        delayMicroseconds(stepSpeed); // Delay time between steps, too fast and motor stalls
-        j = j + 1;
-        if (digitalRead(limitSwitchesY) == LOW){ //stop motor and reverse if limit switch hit
-          retreatY();
-          break;
-        }
-        digitalWrite(motorYdir, LOW); //Set motor back to default direction
-
-
-        delay(8000);
-        Serial.print("finished");
-        findStart();//move to default start point
-        buttonState = HIGH; // Return to menu options
-      }
-
-    }
   }
 }
 
@@ -514,7 +518,7 @@ void findStart(){ //uses limitswitch feedback to reset carriage to a preset star
   }
 
   i=0; //reset counter
-  
+
   //then reset the y axis
 
   while (digitalRead(limitSwitchesY) == HIGH){ //keep reversing until the limitswitch is pressed
@@ -644,6 +648,7 @@ void manualControl(){
     retreatY();
   }
 }
+
 
 
 

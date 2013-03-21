@@ -5,19 +5,13 @@
 #include <Adafruit_MCP23017.h>
 #include <Adafruit_RGBLCDShield.h>
 
-// The shield uses the I2C SCL and SDA pins. On classic Arduinos
-// this is Analog 4 and 5 so you can't use those for analogRead() anymore
-// However, you can connect other I2C sensors to the I2C bus and share
-// the I2C bus.
-Adafruit_RGBLCDShield lcd = Adafruit_RGBLCDShield();
-
 //global variables
 int stepCountX = 0; //number of moves along X axis
 int stepCountY = 0; //number of moves along Y axis
 int distanceX = 40; //how far to move along X axis
 int distanceY = 40; //how far to move along Y axis
-int numberOfImagesX = 5; // how many images to take per row
-int numberOfImagesY = 3; // how many rows of images to take
+int numberOfImagesX = 5; //how many images to take per row
+int numberOfImagesY = 3; //how many rows of images to take
 int stepSpeedX = 8000; //delay in microseconds between motor steps for X axis
 int stepSpeedY = 8000; //delay in microseconds between motor steps for Y axis
 int startPosX = 200; //distance to move away from limitswitches on X axis, dependant on film format
@@ -27,10 +21,17 @@ int manualSpeedY = 0; //delay between steps in manual mode on Y axis, governing 
 int joyStickreadingX = 0; //current analogue reading of X axis on joystick
 int joyStickreadingY = 0; //current analogue reading of Y axis on joystick
 int menuItem = 1; //which menu item to display when turning rotary encoder
+int settlingDelay = 1000; //time to pause in millis to allow vibrations to cease before taking photo
+int cameraDelay = 2000; //time to pause in millis to allow camera to take photo
 
 //assign analogue pins
+int disableMotorX = 14; //used as digital pin to disable motor before taking picture
+int disableMotorY = 15; //used as digital pin to disable motor before taking picture
 int joyStickX = A2; //analogue joystick for manual positioning
 int joyStickY = A3; //analogue joystick for manual positioning
+// The lcd shield uses the I2C SCL and SDA pins. On classic Arduinos
+// this is Analog 4 and 5
+Adafruit_RGBLCDShield lcd = Adafruit_RGBLCDShield();
 
 //assign digital pins
 int pushButton = 2;  // Pin 2 = Start/ Stop button
@@ -78,7 +79,9 @@ void setup()
   pinMode(motorYdir, OUTPUT); //define pin as an output 
   pinMode(motorYstep, OUTPUT); //define pin as an output
   pinMode(focus, OUTPUT); //define pin as an output 
-  pinMode(shutter, OUTPUT); //define pin as an output 
+  pinMode(shutter, OUTPUT); //define pin as an output
+  pinMode(disableMotorX, OUTPUT); //define pin as an output 
+  pinMode(disableMotorY, OUTPUT); //define pin as an output 
 
   digitalWrite(motorXstep, LOW); //start with motor step pin low
   digitalWrite(motorYstep, LOW); //start with motor step pin low
@@ -90,6 +93,8 @@ void setup()
   digitalWrite(manualControlButton, HIGH); //start with manualControlButton pin high
   digitalWrite(limitSwitchesX, HIGH); //start with limitSwitchesX pin high
   digitalWrite(limitSwitchesY, HIGH);//start with limitSwitchesY pin high
+  digitalWrite(disableMotorX, LOW);//start with disableMotorX pin low
+  digitalWrite(disableMotorY, LOW);//start with disableMotorY pin low
 
   lcd.setCursor(0, 0);
   lcd.print("Scanduino");
@@ -344,23 +349,14 @@ void loop(){
         lcd.clear();
         lcd.setCursor(0, 1);
         lcd.print("Taking picture");
-
-        digitalWrite(focus, HIGH); // Trigger camera autofocus - camera may not take picture in some modes if this is not triggered first
-        digitalWrite(shutter, HIGH); // Trigger camera shutter
-        delay(200); // Small delay needed for camera to process above signals
-        digitalWrite(shutter, LOW); // Switch off camera trigger signal
-        digitalWrite(focus, LOW); // Switch off camera focus signal
-        delay(2000); //Pause to allow for camera to take picture with 2 sec mirror lockup
-
+        takeImage(); //take picture
         lcd.clear();
         lcd.setCursor(0, 1);
         lcd.print("Moving");
 
         int i = 0; //used to count steps made
         while (i < distanceX && digitalRead(limitSwitchesX) == HIGH){ // Move as far as distanceX
-          digitalWrite(motorXstep, LOW); // This LOW to HIGH change is what creates the
-          digitalWrite(motorXstep, HIGH); // "Rising Edge" so the easydriver knows to when to step
-          delayMicroseconds(stepSpeedX); // Delay time between steps, too fast and motor stalls
+          doXStep();
           i++;
           if (digitalRead(limitSwitchesX) == LOW){ //stop motor and reverse if limit switch hit
             retreatX();
@@ -374,13 +370,7 @@ void loop(){
       lcd.clear();
       lcd.setCursor(0, 1);
       lcd.print("Final pic of row");
-
-      digitalWrite(focus, HIGH); // Trigger camera autofocus - camera may not take picture in some modes if this is not triggered first
-      digitalWrite(shutter, HIGH); // Trigger camera shutter
-      delay(200); // Small delay needed for camera to process above signals
-      digitalWrite(shutter, LOW); // Switch off camera trigger signal
-      digitalWrite(focus, LOW); // Switch off camera focus signal
-      delay(2000); //Pause to allow for camera to take picture with 2 sec mirror lockup
+      takeImage(); //take picture
       digitalToggle(motorXdir); //reverse x axis motor direction for next row
 
       //Move down to next row
@@ -390,9 +380,7 @@ void loop(){
       delay(500);
       int j = 0; //used to count steps made
       while (j < distanceY && digitalRead(limitSwitchesY) == HIGH){ // Move as far as distanceY - moves down to the next row
-        digitalWrite(motorYstep, LOW); // This LOW to HIGH change is what creates the
-        digitalWrite(motorYstep, HIGH); // "Rising Edge" so the easydriver knows to when to step
-        delayMicroseconds(stepSpeedY); // Delay time between steps, too fast and motor stalls
+        doYStep();
         j++;
         if (digitalRead(limitSwitchesY) == LOW){ //stop motor and reverse if limit switch hit
           retreatY();
@@ -412,18 +400,10 @@ void loop(){
       lcd.clear();
       lcd.setCursor(0, 1);
       lcd.print("Taking picture");
-
-      digitalWrite(focus, HIGH); // Trigger camera autofocus - camera may not take picture in some modes if this is not triggered first
-      digitalWrite(shutter, HIGH); // Trigger camera shutter
-      delay(200); // Small delay needed for camera to process above signals
-      digitalWrite(shutter, LOW); // Switch off camera trigger signal
-      digitalWrite(focus, LOW); // Switch off camera focus signal
-      delay(2000); //Pause to allow for camera to take picture with 2 sec mirror lockup
+      takeImage(); //take picture
       int i = 0; //used to count steps made
       while (i < distanceX && digitalRead(limitSwitchesX) == HIGH){ // Move as far as distanceX
-        digitalWrite(motorXstep, LOW); // This LOW to HIGH change is what creates the
-        digitalWrite(motorXstep, HIGH); // "Rising Edge" so the easydriver knows to when to step
-        delayMicroseconds(stepSpeedX); // Delay time between steps, too fast and motor stalls
+        doXStep();
         i++;
         if (digitalRead(limitSwitchesX) == LOW){ //stop motor and reverse if limit switch hit
           retreatX();
@@ -436,13 +416,7 @@ void loop(){
     lcd.clear();
     lcd.setCursor(0, 1);
     lcd.print("Final picture");
-
-    digitalWrite(focus, HIGH); // Trigger camera autofocus - camera may not take picture in some modes if this is not triggered first
-    digitalWrite(shutter, HIGH); // Trigger camera shutter
-    delay(200); // Small delay needed for camera to process above signals
-    digitalWrite(shutter, LOW); // Switch off camera trigger signal
-    digitalWrite(focus, LOW); // Switch off camera focus signal
-    delay(2000); //Pause to allow for camera to take picture with 2 sec mirror lockup
+    takeImage(); //take picture
 
     //Return to start position
     lcd.clear();
@@ -497,18 +471,14 @@ void findStart(){ //uses limitswitch feedback to reset carriage to a preset star
 
   while (digitalRead(limitSwitchesX) == HIGH){ //keep reversing until the limitswitch is pressed
     digitalWrite(motorXdir, HIGH); //reverse stepper direction
-    digitalWrite(motorXstep, LOW);  //this LOW to HIGH change is what creates the
-    digitalWrite(motorXstep, HIGH); //"Rising Edge" so the easydriver knows to when to step
-    delayMicroseconds(stepSpeedX); //delay time between steps, too fast and motor stalls
+    doXStep();
   }
 
   int i=0; //used to count steps made to move to startPosX
 
   while (digitalRead(limitSwitchesX) == LOW || i < startPosX){ //iterate doStep signal until start position reached
     digitalWrite(motorXdir, LOW); //reset stepper direction
-    digitalWrite(motorXstep, LOW); //this LOW to HIGH change is what creates the
-    digitalWrite(motorXstep, HIGH); //"Rising Edge" so the easydriver knows to when to step
-    delayMicroseconds(stepSpeedX); //delay time between steps, too fast and motor stalls
+    doXStep();
     i++;
   }
 
@@ -518,18 +488,14 @@ void findStart(){ //uses limitswitch feedback to reset carriage to a preset star
 
   while (digitalRead(limitSwitchesY) == HIGH){ //keep reversing until the limitswitch is pressed
     digitalWrite(motorYdir, HIGH); //reverse stepper direction
-    digitalWrite(motorYstep, LOW);  //this LOW to HIGH change is what creates the
-    digitalWrite(motorYstep, HIGH); //"Rising Edge" so the easydriver knows to when to step
-    delayMicroseconds(stepSpeedY); //delay time between steps, too fast and motor stalls
+    doYStep();
   }
 
   int j=0; //used to count steps made to move to startPosY
 
   while (digitalRead(limitSwitchesY) == LOW || j < startPosY){ //iterate doStep signal until start position reached
     digitalWrite(motorYdir, LOW); //reset stepper direction
-    digitalWrite(motorYstep, LOW); //this LOW to HIGH change is what creates the
-    digitalWrite(motorYstep, HIGH); //"Rising Edge" so the easydriver knows to when to step
-    delayMicroseconds(stepSpeedY); //delay time between steps, too fast and motor stalls
+    doYStep();
     j++;
   }
 
@@ -549,9 +515,7 @@ void retreatX(){ //moves platform back into safe zone if a limit switch on the X
   while (digitalRead(limitSwitchesX) == LOW) //iterate doStep signal for as long as eitherlimit switch remains pressed 
 
   {  
-    digitalWrite(motorXstep, LOW); //this LOW to HIGH change is what creates the
-    digitalWrite(motorXstep, HIGH); //"Rising Edge" so the easydriver knows to when to step
-    delayMicroseconds(stepSpeedX); //delay time between steps, too fast and motor stalls
+    doXStep();
   }
 
   digitalToggle(motorXdir); //reset motor back to original direction once limit switch is no longer pressed
@@ -570,9 +534,7 @@ void retreatY(){ //moves platform back into safe zone if a limit switch on the Y
   while (digitalRead(limitSwitchesY) == LOW) //iterate doStep signal for as long as eitherlimit switch remains pressed 
 
   {  
-    digitalWrite(motorYstep, LOW); //this LOW to HIGH change is what creates the
-    digitalWrite(motorYstep, HIGH); //"Rising Edge" so the easydriver knows to when to step
-    delayMicroseconds(stepSpeedY); //delay time between steps, too fast and motor stalls
+    doYStep();
   }
 
   digitalToggle(motorYdir); //reset motor back to original direction once limit switch is no longer pressed
@@ -644,22 +606,28 @@ void manualControl(){
   }
 }
 
+void takeImage(){
+   digitalWrite(disableMotorX, HIGH); //disable motor to avoid vibration
+   digitalWrite(disableMotorY, HIGH); //disable motor to avoid vibration
+   delay(settlingDelay); //pause to allow any vibrations to fade out before taking picture
+   digitalWrite(focus, HIGH); // Trigger camera autofocus - camera may not take picture in some modes if this is not triggered first
+   digitalWrite(shutter, HIGH); // Trigger camera shutter
+   delay(200); // Small delay needed for camera to process above signals
+   digitalWrite(shutter, LOW); // Switch off camera trigger signal
+   digitalWrite(focus, LOW); // Switch off camera focus signal
+   delay(cameraDelay); //Pause to allow for camera to take picture
+   digitalWrite(disableMotorX, LOW); //re-enable motor
+   digitalWrite(disableMotorY, LOW); //re-enable motor
+}
 
+void doXStep(){
+   digitalWrite(motorXstep, LOW); //this LOW to HIGH change is what creates the
+   digitalWrite(motorXstep, HIGH); //"Rising Edge" so the easydriver knows to when to step
+   delayMicroseconds(stepSpeedX); //delay time between steps, too fast and motor stalls 
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void doYStep(){
+   digitalWrite(motorYstep, LOW); //this LOW to HIGH change is what creates the
+   digitalWrite(motorYstep, HIGH); //"Rising Edge" so the easydriver knows to when to step
+   delayMicroseconds(stepSpeedY); //delay time between steps, too fast and motor stalls 
+}

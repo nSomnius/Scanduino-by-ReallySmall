@@ -336,9 +336,9 @@ void loop(){
     lcd.setCursor(0, 1);
     lcd.print("Scan started");
 
-    for (int i = 0; i <= (numberOfImagesY - 1); i++){ //Repeat until count equals numberOfImagesY - 1
+    for (int i = 0; i < (numberOfImagesY - 1); i++){ //Repeat until count equals numberOfImagesY - 1
 
-      for (int i = 0; i <= (numberOfImagesX - 1); i++){ //Repeat the function until count equals numberOfImagesX - 1
+      for (int i = 0; i < (numberOfImagesX - 1); i++){ //Repeat the function until count equals numberOfImagesX - 1
 
         lcd.clear();
         lcd.setCursor(0, 1);
@@ -406,7 +406,7 @@ void loop(){
     lcd.setCursor(0, 1);
     lcd.print("Final row");
 
-    for (int i = 0; i <= (numberOfImagesX - 1); i++){ //Repeat the function until count equals numberOfImagesX - 1
+    for (int i = 0; i < (numberOfImagesX - 1); i++){ //Repeat the function until count equals numberOfImagesX - 1
 
       lcd.clear();
       lcd.setCursor(0, 1);

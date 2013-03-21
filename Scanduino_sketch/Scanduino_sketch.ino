@@ -329,22 +329,32 @@ void loop(){
     lcd.clear();
     lcd.setCursor(0, 1);
     lcd.print("Finding start");
+
     findStart(); //move to the home position
-  
-    for (int i = 0; i < numberOfImagesY - 1; i++){ //Repeat until count equals numberOfImagesY - 1
-    
-      for (int i = 0; i < numberOfImagesX - 1; i++){ //Repeat the function until count equals numberOfImagesX - 1
-      
+
+    lcd.clear();
+    lcd.setCursor(0, 1);
+    lcd.print("Scan started");
+
+    for (int i = 0; i <= numberOfImagesY - 1; i++){ //Repeat until count equals numberOfImagesY - 1
+
+      for (int i = 0; i <= numberOfImagesX - 1; i++){ //Repeat the function until count equals numberOfImagesX - 1
+
         lcd.clear();
         lcd.setCursor(0, 1);
-        lcd.print("Scan started");
-      
+        lcd.print("Taking picture");
+
         digitalWrite(focus, HIGH); // Trigger camera autofocus - camera may not take picture in some modes if this is not triggered first
         digitalWrite(shutter, HIGH); // Trigger camera shutter
         delay(200); // Small delay needed for camera to process above signals
         digitalWrite(shutter, LOW); // Switch off camera trigger signal
         digitalWrite(focus, LOW); // Switch off camera focus signal
         delay(2000); //Pause to allow for camera to take picture with 2 sec mirror lockup
+
+        lcd.clear();
+        lcd.setCursor(0, 1);
+        lcd.print("Moving");
+
         int i = 0; //used to count steps made
         while (i < distanceX && digitalRead(limitSwitchesX) == HIGH){ // Move as far as distanceX
           digitalWrite(motorXstep, LOW); // This LOW to HIGH change is what creates the
@@ -357,11 +367,12 @@ void loop(){
           }
         }
         i = 0; //reset counter
-        
+
         //Last image of row
         lcd.clear();
         lcd.setCursor(0, 1);
         lcd.print("Final pic of row");
+
         digitalWrite(focus, HIGH); // Trigger camera autofocus - camera may not take picture in some modes if this is not triggered first
         digitalWrite(shutter, HIGH); // Trigger camera shutter
         delay(200); // Small delay needed for camera to process above signals
@@ -369,11 +380,12 @@ void loop(){
         digitalWrite(focus, LOW); // Switch off camera focus signal
         delay(2000); //Pause to allow for camera to take picture with 2 sec mirror lockup
         digitalToggle(motorXdir); //reverse x axis motor direction for next row
-        
+
         //Move down to next row
         lcd.clear();
         lcd.setCursor(0, 1);
         lcd.print("Next row");
+        delay(500);
         int j = 0; //used to count steps made
         while (j < distanceY && digitalRead(limitSwitchesY) == HIGH){ // Move as far as distanceY - moves down to the next row
           digitalWrite(motorYstep, LOW); // This LOW to HIGH change is what creates the
@@ -392,7 +404,13 @@ void loop(){
     lcd.clear();
     lcd.setCursor(0, 1);
     lcd.print("Final row");
-    for (int i = 0; i < numberOfImagesX - 1; i++){ //Repeat the function until count equals numberOfImagesX - 1
+
+    for (int i = 0; i <= numberOfImagesX - 1; i++){ //Repeat the function until count equals numberOfImagesX - 1
+
+      lcd.clear();
+      lcd.setCursor(0, 1);
+      lcd.print("Taking picture");
+
       digitalWrite(focus, HIGH); // Trigger camera autofocus - camera may not take picture in some modes if this is not triggered first
       digitalWrite(shutter, HIGH); // Trigger camera shutter
       delay(200); // Small delay needed for camera to process above signals
@@ -411,17 +429,18 @@ void loop(){
         }
       }
       i = 0; //reset counter
-      lcd.clear();
-      lcd.setCursor(0, 1);
-      lcd.print("Final picture");
-      digitalWrite(focus, HIGH); // Trigger camera autofocus - camera may not take picture in some modes if this is not triggered first
-      digitalWrite(shutter, HIGH); // Trigger camera shutter
-      delay(200); // Small delay needed for camera to process above signals
-      digitalWrite(shutter, LOW); // Switch off camera trigger signal
-      digitalWrite(focus, LOW); // Switch off camera focus signal
-      delay(2000); //Pause to allow for camera to take picture with 2 sec mirror lockup
-      digitalToggle(motorXdir);
     }
+
+    lcd.clear();
+    lcd.setCursor(0, 1);
+    lcd.print("Final picture");
+
+    digitalWrite(focus, HIGH); // Trigger camera autofocus - camera may not take picture in some modes if this is not triggered first
+    digitalWrite(shutter, HIGH); // Trigger camera shutter
+    delay(200); // Small delay needed for camera to process above signals
+    digitalWrite(shutter, LOW); // Switch off camera trigger signal
+    digitalWrite(focus, LOW); // Switch off camera focus signal
+    delay(2000); //Pause to allow for camera to take picture with 2 sec mirror lockup
 
     //Return to start position
     lcd.clear();
@@ -622,6 +641,8 @@ void manualControl(){
     retreatY();
   }
 }
+
+
 
 
 

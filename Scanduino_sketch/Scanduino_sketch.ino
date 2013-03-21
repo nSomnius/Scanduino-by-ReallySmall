@@ -336,9 +336,9 @@ void loop(){
     lcd.setCursor(0, 1);
     lcd.print("Scan started");
 
-    for (int i = 0; i <= numberOfImagesY - 1; i++){ //Repeat until count equals numberOfImagesY - 1
+    for (int i = 0; i <= (numberOfImagesY - 1); i++){ //Repeat until count equals numberOfImagesY - 1
 
-      for (int i = 0; i <= numberOfImagesX - 1; i++){ //Repeat the function until count equals numberOfImagesX - 1
+      for (int i = 0; i <= (numberOfImagesX - 1); i++){ //Repeat the function until count equals numberOfImagesX - 1
 
         lcd.clear();
         lcd.setCursor(0, 1);
@@ -367,45 +367,46 @@ void loop(){
           }
         }
         i = 0; //reset counter
+      } //end of looping row function
 
-        //Last image of row
-        lcd.clear();
-        lcd.setCursor(0, 1);
-        lcd.print("Final pic of row");
+      //Last image of row
+      lcd.clear();
+      lcd.setCursor(0, 1);
+      lcd.print("Final pic of row");
 
-        digitalWrite(focus, HIGH); // Trigger camera autofocus - camera may not take picture in some modes if this is not triggered first
-        digitalWrite(shutter, HIGH); // Trigger camera shutter
-        delay(200); // Small delay needed for camera to process above signals
-        digitalWrite(shutter, LOW); // Switch off camera trigger signal
-        digitalWrite(focus, LOW); // Switch off camera focus signal
-        delay(2000); //Pause to allow for camera to take picture with 2 sec mirror lockup
-        digitalToggle(motorXdir); //reverse x axis motor direction for next row
+      digitalWrite(focus, HIGH); // Trigger camera autofocus - camera may not take picture in some modes if this is not triggered first
+      digitalWrite(shutter, HIGH); // Trigger camera shutter
+      delay(200); // Small delay needed for camera to process above signals
+      digitalWrite(shutter, LOW); // Switch off camera trigger signal
+      digitalWrite(focus, LOW); // Switch off camera focus signal
+      delay(2000); //Pause to allow for camera to take picture with 2 sec mirror lockup
+      digitalToggle(motorXdir); //reverse x axis motor direction for next row
 
-        //Move down to next row
-        lcd.clear();
-        lcd.setCursor(0, 1);
-        lcd.print("Next row");
-        delay(500);
-        int j = 0; //used to count steps made
-        while (j < distanceY && digitalRead(limitSwitchesY) == HIGH){ // Move as far as distanceY - moves down to the next row
-          digitalWrite(motorYstep, LOW); // This LOW to HIGH change is what creates the
-          digitalWrite(motorYstep, HIGH); // "Rising Edge" so the easydriver knows to when to step
-          delayMicroseconds(stepSpeed); // Delay time between steps, too fast and motor stalls
-          j++;
-          if (digitalRead(limitSwitchesY) == LOW){ //stop motor and reverse if limit switch hit
-            retreatY();
-            break;
-          }
-        }
-        j = 0; //reset counter
-      }
-    }
-    //Final row
+      //Move down to next row
+      lcd.clear();
+      lcd.setCursor(0, 1);
+      lcd.print("Next row");
+      delay(500);
+      int j = 0; //used to count steps made
+      while (j < distanceY && digitalRead(limitSwitchesY) == HIGH){ // Move as far as distanceY - moves down to the next row
+        digitalWrite(motorYstep, LOW); // This LOW to HIGH change is what creates the
+        digitalWrite(motorYstep, HIGH); // "Rising Edge" so the easydriver knows to when to step
+        delayMicroseconds(stepSpeed); // Delay time between steps, too fast and motor stalls
+        j++;
+        if (digitalRead(limitSwitchesY) == LOW){ //stop motor and reverse if limit switch hit
+          retreatY();
+          break;
+        } //end of conditional limit switch statement
+      } //end of motor movement down to next row
+      j = 0; //reset counter
+    } //end of main looping function
+
+    //Final row runs once outside of main looping function
     lcd.clear();
     lcd.setCursor(0, 1);
     lcd.print("Final row");
 
-    for (int i = 0; i <= numberOfImagesX - 1; i++){ //Repeat the function until count equals numberOfImagesX - 1
+    for (int i = 0; i <= (numberOfImagesX - 1); i++){ //Repeat the function until count equals numberOfImagesX - 1
 
       lcd.clear();
       lcd.setCursor(0, 1);
@@ -641,6 +642,8 @@ void manualControl(){
     retreatY();
   }
 }
+
+
 
 
 

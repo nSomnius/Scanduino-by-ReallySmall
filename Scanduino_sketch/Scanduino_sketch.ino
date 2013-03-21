@@ -18,7 +18,8 @@ int distanceX = 40; //how far to move along X axis
 int distanceY = 40; //how far to move along Y axis
 int numberOfImagesX = 5; // how many images to take per row
 int numberOfImagesY = 3; // how many rows of images to take
-int stepSpeed = 8000; //delay in microseconds between motor steps
+int stepSpeedX = 8000; //delay in microseconds between motor steps for X axis
+int stepSpeedY = 8000; //delay in microseconds between motor steps for Y axis
 int startPosX = 200; //distance to move away from limitswitches on X axis, dependant on film format
 int startPosY = 200; //distance to move away from limitswitches on X axis, dependant on film format
 int manualSpeedX = 0; //delay between steps in manual mode on X axis, governing motor speed
@@ -359,7 +360,7 @@ void loop(){
         while (i < distanceX && digitalRead(limitSwitchesX) == HIGH){ // Move as far as distanceX
           digitalWrite(motorXstep, LOW); // This LOW to HIGH change is what creates the
           digitalWrite(motorXstep, HIGH); // "Rising Edge" so the easydriver knows to when to step
-          delayMicroseconds(stepSpeed); // Delay time between steps, too fast and motor stalls
+          delayMicroseconds(stepSpeedX); // Delay time between steps, too fast and motor stalls
           i++;
           if (digitalRead(limitSwitchesX) == LOW){ //stop motor and reverse if limit switch hit
             retreatX();
@@ -391,7 +392,7 @@ void loop(){
       while (j < distanceY && digitalRead(limitSwitchesY) == HIGH){ // Move as far as distanceY - moves down to the next row
         digitalWrite(motorYstep, LOW); // This LOW to HIGH change is what creates the
         digitalWrite(motorYstep, HIGH); // "Rising Edge" so the easydriver knows to when to step
-        delayMicroseconds(stepSpeed); // Delay time between steps, too fast and motor stalls
+        delayMicroseconds(stepSpeedY); // Delay time between steps, too fast and motor stalls
         j++;
         if (digitalRead(limitSwitchesY) == LOW){ //stop motor and reverse if limit switch hit
           retreatY();
@@ -422,7 +423,7 @@ void loop(){
       while (i < distanceX && digitalRead(limitSwitchesX) == HIGH){ // Move as far as distanceX
         digitalWrite(motorXstep, LOW); // This LOW to HIGH change is what creates the
         digitalWrite(motorXstep, HIGH); // "Rising Edge" so the easydriver knows to when to step
-        delayMicroseconds(stepSpeed); // Delay time between steps, too fast and motor stalls
+        delayMicroseconds(stepSpeedX); // Delay time between steps, too fast and motor stalls
         i++;
         if (digitalRead(limitSwitchesX) == LOW){ //stop motor and reverse if limit switch hit
           retreatX();
@@ -498,7 +499,7 @@ void findStart(){ //uses limitswitch feedback to reset carriage to a preset star
     digitalWrite(motorXdir, HIGH); //reverse stepper direction
     digitalWrite(motorXstep, LOW);  //this LOW to HIGH change is what creates the
     digitalWrite(motorXstep, HIGH); //"Rising Edge" so the easydriver knows to when to step
-    delayMicroseconds(stepSpeed); //delay time between steps, too fast and motor stalls
+    delayMicroseconds(stepSpeedX); //delay time between steps, too fast and motor stalls
   }
 
   int i=0; //used to count steps made to move to startPosX
@@ -507,7 +508,7 @@ void findStart(){ //uses limitswitch feedback to reset carriage to a preset star
     digitalWrite(motorXdir, LOW); //reset stepper direction
     digitalWrite(motorXstep, LOW); //this LOW to HIGH change is what creates the
     digitalWrite(motorXstep, HIGH); //"Rising Edge" so the easydriver knows to when to step
-    delayMicroseconds(stepSpeed); //delay time between steps, too fast and motor stalls
+    delayMicroseconds(stepSpeedX); //delay time between steps, too fast and motor stalls
     i++;
   }
 
@@ -519,7 +520,7 @@ void findStart(){ //uses limitswitch feedback to reset carriage to a preset star
     digitalWrite(motorYdir, HIGH); //reverse stepper direction
     digitalWrite(motorYstep, LOW);  //this LOW to HIGH change is what creates the
     digitalWrite(motorYstep, HIGH); //"Rising Edge" so the easydriver knows to when to step
-    delayMicroseconds(stepSpeed); //delay time between steps, too fast and motor stalls
+    delayMicroseconds(stepSpeedY); //delay time between steps, too fast and motor stalls
   }
 
   int j=0; //used to count steps made to move to startPosY
@@ -528,7 +529,7 @@ void findStart(){ //uses limitswitch feedback to reset carriage to a preset star
     digitalWrite(motorYdir, LOW); //reset stepper direction
     digitalWrite(motorYstep, LOW); //this LOW to HIGH change is what creates the
     digitalWrite(motorYstep, HIGH); //"Rising Edge" so the easydriver knows to when to step
-    delayMicroseconds(stepSpeed); //delay time between steps, too fast and motor stalls
+    delayMicroseconds(stepSpeedY); //delay time between steps, too fast and motor stalls
     j++;
   }
 
@@ -550,7 +551,7 @@ void retreatX(){ //moves platform back into safe zone if a limit switch on the X
   {  
     digitalWrite(motorXstep, LOW); //this LOW to HIGH change is what creates the
     digitalWrite(motorXstep, HIGH); //"Rising Edge" so the easydriver knows to when to step
-    delayMicroseconds(stepSpeed); //delay time between steps, too fast and motor stalls
+    delayMicroseconds(stepSpeedX); //delay time between steps, too fast and motor stalls
   }
 
   digitalToggle(motorXdir); //reset motor back to original direction once limit switch is no longer pressed
@@ -571,7 +572,7 @@ void retreatY(){ //moves platform back into safe zone if a limit switch on the Y
   {  
     digitalWrite(motorYstep, LOW); //this LOW to HIGH change is what creates the
     digitalWrite(motorYstep, HIGH); //"Rising Edge" so the easydriver knows to when to step
-    delayMicroseconds(stepSpeed); //delay time between steps, too fast and motor stalls
+    delayMicroseconds(stepSpeedY); //delay time between steps, too fast and motor stalls
   }
 
   digitalToggle(motorYdir); //reset motor back to original direction once limit switch is no longer pressed

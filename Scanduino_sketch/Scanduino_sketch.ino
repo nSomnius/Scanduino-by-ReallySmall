@@ -97,7 +97,6 @@ void setup(){
 
   lcd.setCursor(0, 0);
   lcd.print("Scanduino");
-  delay(2000);
 
 }
 

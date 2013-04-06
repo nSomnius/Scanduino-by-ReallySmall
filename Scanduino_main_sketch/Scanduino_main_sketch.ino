@@ -1,3 +1,11 @@
+//SCANDUINO MAIN SKETCH
+
+//the ultimate goal of Scanduino is to automate the digitizing of a sheet of film by capturing 
+//an array of images taken by a DSLR for later stitching via panoramic stitching program
+
+//bodged together by Richard Iles - ReallySmall on Flickr http://www.flickr.com/photos/reallysmall/
+//analogue joystick code from http://www.instructables.com/id/CRANE-GAME/step2/Control-a-stepper-with-joy-stick/
+
 //reference required libraries
 #include <DigitalToggle.h>
 #include <LiquidCrystal.h> 

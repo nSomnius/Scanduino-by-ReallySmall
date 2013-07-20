@@ -27,7 +27,7 @@ up and before the actual program runs this means your values must be changed bef
 actual resting state. Second, setting the upper and lower limits at approx. 20 points on either side of the resting value
 will make the joystick behave better.
 
-The Variale sketch is meant to be used to establish settings to use in the main sketch. You can use it to find the best
+The Variable sketch is meant to be used to establish settings to use in the main sketch. You can use it to find the best
 values for each film size you plan to 'scan' and input those figures into the Main sketch, whereupon you will find those
 settings simplified in the form of selectable presets.
 

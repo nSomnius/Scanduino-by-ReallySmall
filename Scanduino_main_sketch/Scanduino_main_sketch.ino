@@ -10,8 +10,12 @@
 #include <DigitalToggle.h>
 #include <LiquidCrystal.h> 
 #include <Wire.h>
-#include <Adafruit_MCP23017.h>
-#include <Adafruit_RGBLCDShield.h>
+//#include <Adafruit_MCP23017.h> commented out pending replacement with LiquidTWI2
+//#include <Adafruit_RGBLCDShield.h>  commented out pending replacement with LiquidTWI2
+#include <LiquidTWI2.h>
+
+LiquidTWI2 lcd(0);
+
 
 //global variables
 int stepCountX = 0; //number of moves along X axis

@@ -57,7 +57,7 @@ int shutter = 11; //send a shutter signal to the camera
 int disableMotorX = 12; //send a signal to Easydriver to disable motor
 int disableMotorY = 13; //send a signal to Easydriver to disable motor
 
-int lastPress;
+volatile long lastPress; //time of last menu button press
 
 //pushButton toggle
 volatile int buttonState = HIGH; // the current state of the output pin

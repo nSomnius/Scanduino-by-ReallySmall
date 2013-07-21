@@ -41,7 +41,7 @@ int joyStickX = A2; //analogue joystick for manual positioning
 int joyStickY = A3; //analogue joystick for manual positioning
 // The lcd shield uses the I2C SCL and SDA pins. On classic Arduinos
 // this is Analog 4 and 5
-Adafruit_RGBLCDShield lcd = Adafruit_RGBLCDShield();
+//Adafruit_RGBLCDShield lcd = Adafruit_RGBLCDShield();
 
 //assign digital pins
 int pushButton = 2;  // Pin 2 = Start/ Stop button
@@ -56,6 +56,8 @@ int focus = 10; //send an autofocus signal to the camera
 int shutter = 11; //send a shutter signal to the camera
 int disableMotorX = 12; //send a signal to Easydriver to disable motor
 int disableMotorY = 13; //send a signal to Easydriver to disable motor
+
+int lastPress;
 
 //pushButton toggle
 volatile int buttonState = HIGH; // the current state of the output pin
@@ -135,11 +137,17 @@ void loop(){
       uint8_t buttons = lcd.readButtons();
 
       if (buttons & BUTTON_RIGHT) { //if right button pushed go forward one menu item
+      if(millis() - lastPress > 800) {
         menuFormatItem++;
+        lastPress = millis();
+      }
       }  
 
       if (buttons & BUTTON_LEFT) { //if left button pushed go back one menu item
+        if(millis() - lastPress > 800) {
         menuFormatItem--;
+        lastPress = millis();
+      }
       }   
 
       menuFormatItem = constrain(menuFormatItem, 0, 6); //limits choice to specified range

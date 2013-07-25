@@ -76,8 +76,11 @@ volatile int menuSectionState = HIGH; //the current state
 
 void setup(){
 
+  lcd.setMCPType(LTI_TYPE_MCP23017);
+  lcd.setBacklight(WHITE);
   Serial.begin(9600); 
   lcd.begin(16, 2);
+  
 
   attachInterrupt(0, buttonChange, CHANGE); // Button on interrupt 0 - pin 2
   attachInterrupt(1, manualControlButtonChange, CHANGE); // Button on interrupt 1 - pin 3

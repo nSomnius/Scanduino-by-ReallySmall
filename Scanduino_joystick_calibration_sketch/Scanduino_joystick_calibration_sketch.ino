@@ -10,14 +10,17 @@
 #include <DigitalToggle.h> 
 #include <LiquidCrystal.h>
 #include <Wire.h>
-#include <Adafruit_MCP23017.h>
-#include <Adafruit_RGBLCDShield.h>
+//#include <Adafruit_MCP23017.h>  commented out pending replacement with LiquidTWI2
+//#include <Adafruit_RGBLCDShield.h>  commented out pending replacement with LiquidTWI2
+#include <LiquidTWI2.h>
+LiquidTWI2 lcd(0);
+
 
 // The shield uses the I2C SCL and SDA pins. On classic Arduinos
 // this is Analog 4 and 5 so you can't use those for analogRead() anymore
 // However, you can connect other I2C sensors to the I2C bus and share
 // the I2C bus.
-Adafruit_RGBLCDShield lcd = Adafruit_RGBLCDShield();
+//Adafruit_RGBLCDShield lcd = Adafruit_RGBLCDShield();  commented out pending replacement with LiquidTWI2
 
 //global variables
 int stepCountX = 0; //number of moves along X axis
@@ -74,6 +77,8 @@ volatile long rbdebounce = 400; //the debounce time, increase if the output flic
 void setup()
 {
 
+  lcd.setMCPType(LTI_TYPE_MCP23017);
+  lcd.setBacklight(WHITE);
   Serial.begin(9600); 
   lcd.begin(16, 2);
 

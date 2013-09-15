@@ -13,7 +13,6 @@
 //#include <Adafruit_MCP23017.h> commented out pending replacement with LiquidTWI2
 //#include <Adafruit_RGBLCDShield.h>  commented out pending replacement with LiquidTWI2
 #include <LiquidTWI2.h>
-
 LiquidTWI2 lcd(0);
 
 
@@ -41,7 +40,7 @@ int joyStickX = A2; //analogue joystick for manual positioning
 int joyStickY = A3; //analogue joystick for manual positioning
 // The lcd shield uses the I2C SCL and SDA pins. On classic Arduinos
 // this is Analog 4 and 5
-Adafruit_RGBLCDShield lcd = Adafruit_RGBLCDShield();
+//Adafruit_RGBLCDShield lcd = Adafruit_RGBLCDShield();  commented out pending replacement with LiquidTWI2
 
 //assign digital pins
 int pushButton = 2;  // Pin 2 = Start/ Stop button
